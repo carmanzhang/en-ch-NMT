@@ -28,7 +28,8 @@ print('build done')
 model.load_state_dict(
     get_model('model/model.trans.{}.{}.th'.format(n_hidden, n_layer)))
 if is_cuda:
-    model.cuda()
+    model = model.to('cuda')
+    print('cuda')
 model.eval()
 print('model loaded')
 

@@ -36,7 +36,7 @@ class MultiHead(nn.Module):
         length = seq.size(1)
         pos = torch.arange(length)
         if is_cuda:
-            pos.cuda()
+            pos = pos.to('cuda')
         pos %= self.pos_size
         pos = pos.expand_as(seq)
         pos_embedding = self.pos_embedding(pos)
@@ -64,7 +64,8 @@ class MultiHead(nn.Module):
         length = seq.size(1)
         pos = torch.arange(length)
         if is_cuda:
-            pos.cuda()
+            #pos.cuda()
+            pos = pos.to('cuda')
         pos %= 512
         pos = pos.expand_as(seq)
         pos_embedding = self.pos_embedding(pos)
@@ -196,7 +197,7 @@ class Generator(nn.Module):
         answer_representations, answer_representation = self.encoder(answer)
         (h0, c0) = torch.tanh(self.en_to_de(answer_representation.transpose(0, 1))).split(self.n_hidden, -1)
 
-        target = torch.LongTensor([[self.vocab_size]] * answer_representations.size(0)).cuda()
+        target = torch.LongTensor([[self.vocab_size]] * answer_representations.size(0)).to('cuda')
         target_embedding = self.en_embedding(target)
 
         outputs = []
@@ -215,7 +216,7 @@ class Generator(nn.Module):
             outputs.append(get_tensor_data(target))
             target = target.view(-1, 1)
             target_embedding = self.en_embedding(target)
-        return torch.LongTensor(outputs).transpose(0, 1).cuda()
+        return torch.LongTensor(outputs).transpose(0, 1).to('cuda')
 
 
 class GeneratorSingle(nn.Module):
@@ -261,7 +262,7 @@ class GeneratorSingle(nn.Module):
         answer_representations, answer_representation = self.encoder(answer)
         (h0, c0) = torch.tanh(self.en_to_de(answer_representation.transpose(0, 1))).split(self.n_hidden, -1)
 
-        target = torch.LongTensor([[self.vocab_size]] * answer_representations.size(0)).cuda()
+        target = torch.LongTensor([[self.vocab_size]] * answer_representations.size(0)).to('cuda')
         target_embedding = self.encoder.embedding(target)
 
         outputs = []
@@ -280,7 +281,7 @@ class GeneratorSingle(nn.Module):
             outputs.append(get_tensor_data(target))
             target = target.view(-1, 1)
             target_embedding = self.encoder.embedding(target)
-        return torch.LongTensor(outputs).transpose(0, 1).cuda()
+        return torch.LongTensor(outputs).transpose(0, 1).to('cuda')
 
 
 def get_subsequent_mask(seq):
@@ -447,7 +448,8 @@ class GeneratorSelfAttention(nn.Module):
 
         target = torch.LongTensor([[self.vocab_size]] * answer_representations.size(0))
         if is_cuda:
-            target.cuda()
+            target = target.to('cuda')
+        print(target.device)
         target_embedding = self.encoder.embedding(target)
         outputs = []
         b_size = answer_representations.size(0)
@@ -479,7 +481,7 @@ class GeneratorSelfAttention(nn.Module):
             target_embedding = self.encoder.embedding(target)
         results = torch.LongTensor(outputs).transpose(0, 1)
         if is_cuda:
-            results.cuda()
+            results = results.to('cuda')
         return results
 
 
